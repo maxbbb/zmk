@@ -46,7 +46,7 @@
       sensor-bindings = <&inc_dec_kp UP DOWN>;
     };
 
-    // === Layer 2: Nav / System (matches QMK layer 2) ===
+    // === Layer 2: Nav / System ===
     layer_2 {
       bindings = <
         // Row 1
