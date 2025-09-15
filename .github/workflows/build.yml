@@ -263,18 +263,28 @@ jobs:
                   case "board":
                     if (hm.features && hm.features.includes("keys")) {
                       if (hm.siblings) {
-                        return hm.siblings.map(board => ({
-                          board,
-                        }));
+                        return hm.siblings
+                          .filter(board => board === "nice_nano_v2")  // Only build nice_nano_v2
+                          .map(board => ({
+                            board,
+                          }));
                       } else {
-                        return {
-                          board: hm.id
-                        };
+                        if (hm.id === "nice_nano_v2") {  // Only build nice_nano_v2
+                          return {
+                            board: hm.id
+                          };
+                        } else {
+                          return [];
+                        }
                       }
                     } else if (hm.exposes) {
-                      return hm.exposes.flatMap(i =>
-                        metadata.interconnects[i].shields.flatMap(s => boardAndShield(hm, s))
-                      );
+                      if (hm.id === "nice_nano_v2") {  // Only build for nice_nano_v2
+                        return hm.exposes.flatMap(i =>
+                          metadata.interconnects[i].shields.flatMap(s => boardAndShield(hm, s))
+                        );
+                      } else {
+                        return [];
+                      }
                     } else {
                       console.error("Board without keys or interconnect");
                     }
@@ -282,7 +292,9 @@ jobs:
                   case "shield":
                     if (hm.features && hm.features.includes("keys")) {
                       return hm.requires.flatMap(i =>
-                        metadata.interconnects[i].boards.flatMap(b => boardAndShield(b, hm))
+                        metadata.interconnects[i].boards
+                          .filter(b => b.id === "nice_nano_v2")  // Only build for nice_nano_v2
+                          .flatMap(b => boardAndShield(b, hm))
                       );
                     } else {
                       console.warn("Unhandled shield without keys");
@@ -308,34 +320,44 @@ jobs:
           script: |
             const metadata = JSON.parse(`${{ needs.get-grouped-hardware.outputs.organized-metadata }}`);
 
-            let includeOnboard = metadata.onboard.flatMap(b => {
-              if (b.siblings) {
-                return b.siblings.map(board => ({
-                  board,
-                }));
-              } else {
-                return {
-                  board: b.id,
-                };
-              }
-            });
-
-            let includeInterconnect = Object.values(metadata.interconnects).flatMap(i =>
-              i.boards.flatMap(b =>
-                i.shields.flatMap(s => {
-                  if (s.siblings) {
-                    return s.siblings.map(shield => ({
-                      board: b.id,
-                      shield,
+            let includeOnboard = metadata.onboard
+              .filter(b => b.id === "nice_nano_v2" || (b.siblings && b.siblings.includes("nice_nano_v2")))  // Only nice_nano_v2
+              .flatMap(b => {
+                if (b.siblings) {
+                  return b.siblings
+                    .filter(board => board === "nice_nano_v2")  // Only nice_nano_v2
+                    .map(board => ({
+                      board,
                     }));
-                  } else {
+                } else {
+                  if (b.id === "nice_nano_v2") {
                     return {
                       board: b.id,
-                      shield: s.id,
                     };
+                  } else {
+                    return [];
                   }
-                })
-              )
+                }
+              });
+
+            let includeInterconnect = Object.values(metadata.interconnects).flatMap(i =>
+              i.boards
+                .filter(b => b.id === "nice_nano_v2")  // Only build for nice_nano_v2
+                .flatMap(b =>
+                  i.shields.flatMap(s => {
+                    if (s.siblings) {
+                      return s.siblings.map(shield => ({
+                        board: b.id,
+                        shield,
+                      }));
+                    } else {
+                      return {
+                        board: b.id,
+                        shield: s.id,
+                      };
+                    }
+                  })
+                )
             );
 
             return [...includeOnboard, ...includeInterconnect];
