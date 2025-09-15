@@ -31,7 +31,7 @@
       sensor-bindings = <&inc_dec_kp LEFT RIGHT>;
     };
 
-    // === Layer 1: Symbols / Numbers (matches QMK layer 1) ===
+    // === Layer 1: Symbols / Numbers ===
     layer_1 {
       bindings = <
         // Row 1
