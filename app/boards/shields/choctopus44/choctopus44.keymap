@@ -1,13 +1,7 @@
 /*
- * ZMK keymap translated 1:1 from your QMK JSON for boardsource/unicorne
- * Differences (as requested):
- *  - 4-thumb per side: OUTERMOST on each side is blank (&none) on all layers
- *  - Center rotary dial left unmapped (no sensor-bindings)
+ * Copyright (c) 2021 The ZMK Contributors
  *
- * Notes:
- *  - QK_BOOT -> &bootloader (ZMK reset/bootloader behavior)
- *  - EE_CLR (QMK-only) has no ZMK equivalent -> &none with comment
- *  - Mod-Tap timing/flavor set to match QMK defaults (tap-preferred, 200ms)
+ * SPDX-License-Identifier: MIT
  */
 
 #include <behaviors.dtsi>
@@ -15,85 +9,43 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/rgb.h>
 
-/* Match QMK tap/hold defaults: 200ms, tap-preferred for mod-taps. */
 &mt {
-    tapping-term-ms = <200>;
-    flavor = "tap-preferred"; /* QMK default behavior. */
-};
-/* Layer-tap already default tap-preferred; set term explicitly to 200ms. */
-&lt {
-    tapping-term-ms = <200>;
+    tapping-term-ms = <400>;
 };
 
- / {
+/ {
   keymap {
     compatible = "zmk,keymap";
 
-    /* =========================
-     * Layer 0: Base (QMK layer 0)
-     * ========================= */
+
     default_layer {
       bindings = <
-        /* Row 1 (12):  LCAPS Q W E R T | Y U I O P TRNS */
-        &kp LCAPS   &kp Q      &kp W       &kp E      &kp R      &kp T              &kp Y      &kp U      &kp I       &kp O       &kp P        &trans
-
-        /* Row 2 (12):  ESC A S D F G | H J K L ; ' */
-        &kp ESC     &kp A      &kp S       &kp D      &kp F      &kp G              &kp H      &kp J      &kp K       &kp L       &kp SEMI     &kp SQT
-
-        /* Row 3 (12):  LSHFT LALT_T(Z) X C V B | N M , . / RSHFT */
-        &kp LSHFT   &mt LALT Z &kp X       &kp C      &kp V      &kp B              &kp N      &kp M      &kp COMMA   &kp DOT     &kp FSLH     &kp RSHFT
-
-        /* Thumbs (4 left, 4 right): OUTERMOST blank on each side */
-        /* Left thumbs: [blank] LALT  LT(1,ENT)  LGUI_T(SPC) */
-        &none       &kp LALT   &lt 1 ENTER   &mt LGUI SPACE
-
-        /* Right thumbs: RCTL_T(BSPC)  LT(2,SPC)  RALT  [blank] */
-        &mt RCTRL BSPC  &lt 2 SPACE   &kp RALT    &none
+        &kp ESC     &kp Q     &kp W       &kp E     &kp R    &kp T                &kp Y     &kp U     &kp I      &kp O    &kp P     &kp LBKT
+        &kp ESC     &kp A     &kp S       &kp D     &kp F    &kp G                &kp H     &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
+        &kp LSHFT   &kp Z     &kp X       &kp C     &kp V    &kp B      &kp RET   &kp N     &kp M     &kp COMMA  &kp DOT  &kp FSLH  &mt RSHFT RET
+                              &kp LCTRL   &kp LALT  &mo 1    &kp TAB            &kp BSPC  &kp SPACE     &kp RGUI   &kp RALT
       >;
-      /* Rotary dial intentionally left unmapped for 1:1 parity with QMK. */
-      /* sensor-bindings = < &inc_dec_kp XXXXX YYYYY >;  // (leave unset) */
+      sensor-bindings = <&inc_dec_kp LEFT RIGHT>;
     };
 
-    /* =====================================
-     * Layer 1: Symbols/Numbers (QMK layer 1)
-     * ===================================== */
-    symbols_layer {
+    lower_layer {
       bindings = <
-        /* Row 1: TRNS  !   @   #   $   %   ^   &   *   (   )   \  */
-        &trans     &kp EXCL  &kp AT   &kp HASH  &kp DLLR  &kp PRCNT   &kp CARET  &kp AMPS  &kp ASTRK  &kp LPAR  &kp RPAR  &kp BSLH
-
-        /* Row 2: TRNS  1   2   3   4   5   -   =   `   [   ]   |  */
-        &trans     &kp N1    &kp N2   &kp N3   &kp N4   &kp N5      &kp MINUS   &kp EQUAL  &kp GRAVE  &kp LBKT  &kp RBKT  &kp PIPE
-
-        /* Row 3: TRNS  6   7   8   9   0   _   +   ~   {   }   TRNS */
-        &trans     &kp N6    &kp N7   &kp N8   &kp N9   &kp N0      &kp UNDER   &kp PLUS   &kp TILDE  &kp LBRC  &kp RBRC  &trans
-
-        /* Thumbs (outermost on each side blank; all others transparent) */
-        &none      &trans    &trans   &trans
-        &trans     &trans    &trans   &none
+        &trans    &kp N1    &kp N2  &kp N3   &kp N4   &kp N5                          &kp N6              &kp N7            &kp N8      &kp N9      &kp N0    &kp MINUS
+        &kp F1    &kp F2    &kp F3  &kp F4   &kp F5   &kp F6                          &kp F7              &kp F8            &kp F9      &kp F10     &kp F11   &kp F12
+        &trans    &trans    &trans  &trans   &trans   &kp CAPS    &kp C_PLAY_PAUSE    &kp LS(NON_US_HASH) &kp NON_US_HASH   &kp EQUAL   &kp GRAVE   &trans    &trans
+                            &trans  &trans   &trans   &trans                          &trans              &mo 3             &trans      &trans
       >;
-      /* No encoder mapping for strict parity. */
+      sensor-bindings = <&inc_dec_kp UP DOWN>;
     };
 
-    /* ==============================
-     * Layer 2: Nav/Misc (QMK layer 2)
-     * ============================== */
-    nav_layer {
+    raise_layer {
       bindings = <
-        /* Row 1: BOOT  TRNS TRNS TRNS TRNS TRNS  PG_UP  TRNS TRNS TRNS TRNS  (EE_CLR) */
-        &bootloader  &trans &trans &trans &trans &trans   &kp PG_UP  &trans &trans &trans &trans  /* EE_CLR */ &none /* No ZMK equivalent */
-
-        /* Row 2: TRNS TRNS TRNS TRNS TRNS TRNS   LEFT  DOWN  UP  RIGHT  TRNS TRNS */
-        &trans       &trans &trans &trans &trans &trans   &kp LEFT   &kp DOWN  &kp UP  &kp RIGHT  &trans &trans
-
-        /* Row 3: TRNS TRNS TRNS TRNS TRNS TRNS   PG_DN  GUI+ALT+LEFT   GUI+ALT+RIGHT   TRNS TRNS TRNS */
-        &trans       &trans &trans &trans &trans &trans   &kp PG_DN  &kp LG(LA(LEFT))  &kp LG(LA(RIGHT))  &trans &trans &trans
-
-        /* Thumbs (outermost on each side blank; others transparent) */
-        &none        &trans &trans &trans
-        &trans       &trans &trans &none
+        &trans      &kp RA(N8)        &kp RA(N9)            &kp UP                &kp LS(N8)      &kp LS(N9)                      &kp LS(FSLH)        &kp FSLH          &kp UP      &kp RBKT    &kp LS(RBKT)  &kp RA(RBKT)
+        &kp GRAVE   &kp LS(EQUAL)     &kp LEFT              &kp DOWN              &kp RIGHT       &kp EQUAL                       &kp RA(MINUS)       &kp LEFT          &kp DOWN    &kp RIGHT   &kp LS(MINUS) &kp RA(N4)
+        &trans      &kp NON_US_BSLH   &kp LS(NON_US_BSLH)   &kp LA(NON_US_BSLH)   &kp LS(RA(N7))  &kp LS(RA(N0))   &kp C_MUTE     &kp LS(NON_US_HASH) &kp NON_US_HASH   &kp LS(N5)  &kp LS(N6)  &kp LS(N7)    &trans
+                                      &trans                &trans                &mo 3           &trans                          &trans              &trans            &trans      &trans
       >;
-      /* No encoder mapping for strict parity. */
+      sensor-bindings = <&inc_dec_kp PG_UP PG_DN>;
     };
   };
 };
